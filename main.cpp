@@ -179,25 +179,15 @@ void handleIf(string input) {
   string condition = trim(remainder.substr(0, thenPos));
   string action = trim(remainder.substr(thenPos + 4));
 
-  string opList[] = {"==", "!=", "<=", ">=", "<", ">"};
-  string opFound = "";
-  size_t opPos = string::npos;
-
-  for (const string& op : opList) {
-    opPos = condition.find(op);
-    if (opPos != string::npos) {
-      opFound = op;
-      break;
-    }
-  }
-
-  if (opFound.empty()) {
-    cout << "Unsupported or missing comparison operator" << endl;
+  // Check for == operator specifically
+  size_t eqPos = condition.find("==");
+  if (eqPos == string::npos) {
+    cout << "Syntax error: use == for comparison" << endl;
     return;
   }
 
-  string left = trim(condition.substr(0, opPos));
-  string right = trim(condition.substr(opPos + opFound.length()));
+  string left = trim(condition.substr(0, eqPos));
+  string right = trim(condition.substr(eqPos + 2));
 
   if (left.empty() || right.empty()) {
     cout << "Invalid condition syntax" << endl;
@@ -212,28 +202,9 @@ void handleIf(string input) {
   try {
     double num1 = stod(leftVal);
     double num2 = stod(rightVal);
-
-    if (opFound == "==")
-      conditionTrue = num1 == num2;
-    else if (opFound == "!=")
-      conditionTrue = num1 != num2;
-    else if (opFound == ">")
-      conditionTrue = num1 > num2;
-    else if (opFound == "<")
-      conditionTrue = num1 < num2;
-    else if (opFound == ">=")
-      conditionTrue = num1 >= num2;
-    else if (opFound == "<=")
-      conditionTrue = num1 <= num2;
+    conditionTrue = num1 == num2;
   } catch (...) {
-    if (opFound == "==")
-      conditionTrue = leftVal == rightVal;
-    else if (opFound == "!=")
-      conditionTrue = leftVal != rightVal;
-    else {
-      cout << "Cannot compare non-numeric values with " << opFound << endl;
-      return;
-    }
+    conditionTrue = leftVal == rightVal;
   }
   
   if (conditionTrue) {
