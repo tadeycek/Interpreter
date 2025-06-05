@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -8,61 +9,85 @@ unordered_map<string, string> variables;
 string strip(string input) {
   string result;
   for (char c : input) {
-    if (c != ' ') {
+    if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
       result += c;
     }
   }
   return result;
 }
 
+string trim(string input) {
+  size_t start = input.find_first_not_of(" \t\n\r");
+  if (start == string::npos) return "";
+  size_t end = input.find_last_not_of(" \t\n\r");
+  return input.substr(start, end - start + 1);
+}
+
 string checkCommand(string input) {
-  int index = input.find('(');
+  size_t index = input.find('(');
+  if (index == string::npos) return "";
   string command = input.substr(0, index);
-  command = strip(command);
+  command = trim(command);
   return command;
 }
 
 string otherPart(string input) {
-  int index = input.find('(');
-  int index2 = input.find(')');
+  size_t index = input.find('(');
+  size_t index2 = input.find_last_of(')');
+  if (index == string::npos || index2 == string::npos || index2 <= index) {
+    return "";
+  }
   string output = input.substr(index + 1, index2 - index - 1);
-  output = strip(output);
+  output = trim(output);
   return output;
 }
 
 bool addSub(string input, double &result) {
   string output = otherPart(input);
-  output = strip(output);
-  int eq = output.find('=');
-  string nulPart;
+  if (output.empty()) return false;
+  
+  size_t eq = output.find('=');
   if (eq != string::npos) {
-    nulPart = output.substr(0, eq - 1);
     output = output.substr(eq + 1);
+    output = trim(output);
   }
-  int index;
-  char op;
-  if (output.find('+') != string::npos) {
-    index = output.find('+');
-    op = '+';
-  } else if (output.find('-') != string::npos) {
-    index = output.find('-');
-    op = '-';
-  } else if (output.find('*') != string::npos) {
-    index = output.find('*');
-    op = '*';
-  } else if (output.find('/') != string::npos) {
-    index = output.find('/');
-    op = '/';
-  } else
-    return 0;
-  string firstPart = output.substr(0, index);
-  string secondPart = output.substr(index + 1);
+  
+  size_t index = string::npos;
+  char op = 0;
+  
+  // Find operators in order of precedence (avoid finding negative numbers)
+  for (size_t i = 1; i < output.length(); i++) {
+    if (output[i] == '+' || output[i] == '-') {
+      index = i;
+      op = output[i];
+      break;
+    }
+  }
+  
+  if (index == string::npos) {
+    for (size_t i = 1; i < output.length(); i++) {
+      if (output[i] == '*' || output[i] == '/') {
+        index = i;
+        op = output[i];
+        break;
+      }
+    }
+  }
+  
+  if (index == string::npos || op == 0) return false;
+  
+  string firstPart = trim(output.substr(0, index));
+  string secondPart = trim(output.substr(index + 1));
+  
+  if (firstPart.empty() || secondPart.empty()) return false;
+  
   double num1, num2;
   try {
     if (variables.count(firstPart))
       num1 = stod(variables[firstPart]);
     else
       num1 = stod(firstPart);
+      
     if (variables.count(secondPart))
       num2 = stod(variables[secondPart]);
     else
@@ -74,8 +99,13 @@ bool addSub(string input, double &result) {
       result = num1 - num2;
     else if (op == '*')
       result = num1 * num2;
-    else if (op == '/')
-      result = num2 != 0 ? num1 / num2 : 0.0;
+    else if (op == '/') {
+      if (num2 == 0) {
+        cout << "Error: Division by zero" << endl;
+        return false;
+      }
+      result = num1 / num2;
+    }
     else
       return false;
 
@@ -88,26 +118,36 @@ bool addSub(string input, double &result) {
 
 bool handleLet(string input) {
   string remainder = otherPart(input);
-  int eqPos = remainder.find('=');
-  if (eqPos == string::npos)
-    return false;
-  string varName = remainder.substr(0, eqPos);
-  string varValue = remainder.substr(eqPos + 1);
+  if (remainder.empty()) return false;
+  
+  size_t eqPos = remainder.find('=');
+  if (eqPos == string::npos) return false;
+  
+  string varName = trim(remainder.substr(0, eqPos));
+  string varValue = trim(remainder.substr(eqPos + 1));
+  
+  if (varName.empty()) return false;
 
   double result;
-  if (addSub(remainder, result))
-    varValue = to_string(result);
-  variables[varName] = varValue;
+  if (addSub(input, result)) {
+    variables[varName] = to_string(result);
+  } else {
+    variables[varName] = varValue;
+  }
   return true;
 }
 
 void handlePrint(string input) {
   string val = otherPart(input);
+  if (val.empty()) {
+    cout << "" << endl;
+    return;
+  }
+  
   double result;
-  if (addSub(input, result))
+  if (addSub(input, result)) {
     cout << result << endl;
-
-  else if (variables.count(val)) {
+  } else if (variables.count(val)) {
     string value = variables[val];
     try {
       double num = stod(value);
@@ -125,21 +165,25 @@ void handlePrint(string input) {
 
 void handleIf(string input) {
   string remainder = otherPart(input);
-  int thenPos = remainder.find("then");
-
+  if (remainder.empty()) {
+    cout << "Syntax error: empty if statement" << endl;
+    return;
+  }
+  
+  size_t thenPos = remainder.find("then");
   if (thenPos == string::npos) {
     cout << "Syntax error: missing 'then'" << endl;
     return;
   }
 
-  string condition = remainder.substr(0, thenPos - 1);
-  string action = remainder.substr(thenPos + 5);
+  string condition = trim(remainder.substr(0, thenPos));
+  string action = trim(remainder.substr(thenPos + 4));
 
-  string opList[] = {"==", "!=", "<", ">", "<=", ">="};
+  string opList[] = {"==", "!=", "<=", ">=", "<", ">"};
   string opFound = "";
-  int opPos = -1;
+  size_t opPos = string::npos;
 
-  for (string op : opList) {
+  for (const string& op : opList) {
     opPos = condition.find(op);
     if (opPos != string::npos) {
       opFound = op;
@@ -152,17 +196,13 @@ void handleIf(string input) {
     return;
   }
 
-  string left = condition.substr(0, opPos);
-  string right = condition.substr(opPos + opFound.length());
+  string left = trim(condition.substr(0, opPos));
+  string right = trim(condition.substr(opPos + opFound.length()));
 
-  while (!left.empty() && left[0] == ' ')
-    left.erase(0, 1);
-  while (!left.empty() && left.back() == ' ')
-    left.pop_back();
-  while (!right.empty() && right[0] == ' ')
-    right.erase(0, 1);
-  while (!right.empty() && right.back() == ' ')
-    right.pop_back();
+  if (left.empty() || right.empty()) {
+    cout << "Invalid condition syntax" << endl;
+    return;
+  }
 
   string leftVal = variables.count(left) ? variables[left] : left;
   string rightVal = variables.count(right) ? variables[right] : right;
@@ -186,16 +226,22 @@ void handleIf(string input) {
     else if (opFound == "<=")
       conditionTrue = num1 <= num2;
   } catch (...) {
-
     if (opFound == "==")
       conditionTrue = leftVal == rightVal;
     else if (opFound == "!=")
       conditionTrue = leftVal != rightVal;
+    else {
+      cout << "Cannot compare non-numeric values with " << opFound << endl;
+      return;
+    }
   }
+  
   if (conditionTrue) {
     string subCommand = checkCommand(action);
     if (subCommand == "print")
       handlePrint(action);
+    else if (subCommand == "let")
+      handleLet(action);
     else
       cout << "Unknown action in 'then': " << subCommand << endl;
   }
@@ -211,30 +257,34 @@ int main() {
       break;
     if (input == "exit")
       break;
+      
+    input = trim(input);
+    if (input.empty()) continue;
+      
     string command = checkCommand(input);
     if (command == "let") {
       if (!handleLet(input))
-        cout << "Invalid variable syntax, use: let var = value" << endl;
-    } else if (command == "print")
+        cout << "Invalid variable syntax, use: let(var = value)" << endl;
+    } else if (command == "print") {
       handlePrint(input);
-    else if (command == "math") {
+    } else if (command == "math") {
       double result;
       if (addSub(input, result))
         cout << result << endl;
       else
-        cout << "Wrong syntax or invalid math command.\n";
+        cout << "Wrong syntax or invalid math command." << endl;
     } else if (command == "listVars") {
       if (variables.empty())
         cout << "No variables defined" << endl;
       else {
-        for (auto v : variables)
+        for (const auto& v : variables)
           cout << v.first << " = " << v.second << endl;
       }
-    } else if (command == "if")
+    } else if (command == "if") {
       handleIf(input);
-
-    else
-      cout << "Unknown command\n";
+    } else {
+      cout << "Unknown command: " << command << endl;
+    }
   }
   cout << "Goodbye!\n";
   return 0;
