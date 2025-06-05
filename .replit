@@ -67,3 +67,19 @@ pattern = "**/*.{cpp,h}"
 
 [languages.cpp.languageServer]
 start = "ccls"
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 13656143
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "make -s"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./main"
