@@ -164,20 +164,34 @@ void handlePrint(string input) {
 }
 
 void handleIf(string input) {
-  string remainder = otherPart(input);
-  if (remainder.empty()) {
-    cout << "Syntax error: empty if statement" << endl;
+  // Find the closing bracket of the condition
+  size_t condStart = input.find('(');
+  size_t condEnd = input.find(')', condStart);
+  
+  if (condStart == string::npos || condEnd == string::npos) {
+    cout << "Syntax error: missing brackets around condition" << endl;
     return;
   }
   
-  size_t thenPos = remainder.find("then");
-  if (thenPos == string::npos) {
-    cout << "Syntax error: missing 'then'" << endl;
+  string condition = trim(input.substr(condStart + 1, condEnd - condStart - 1));
+  string remainder = trim(input.substr(condEnd + 1));
+  
+  if (condition.empty()) {
+    cout << "Syntax error: empty condition" << endl;
     return;
   }
-
-  string condition = trim(remainder.substr(0, thenPos));
-  string action = trim(remainder.substr(thenPos + 4));
+  
+  // Check for "then" keyword after the brackets
+  if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
+    cout << "Syntax error: missing 'then' after condition" << endl;
+    return;
+  }
+  
+  string action = trim(remainder.substr(4));
+  if (action.empty()) {
+    cout << "Syntax error: missing action after 'then'" << endl;
+    return;
+  }
 
   // Check for == operator specifically
   size_t eqPos = condition.find("==");
