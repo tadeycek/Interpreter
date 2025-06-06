@@ -400,13 +400,6 @@ void handleWhile(string input) {
 
 
 
-
-
-
-
-
-
-
 int main() {
     string input;
     cout << "Language 1:\n";
