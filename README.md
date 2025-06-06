@@ -1,61 +1,61 @@
-# 🧮 Simple C++ Interpreter
+# Simple C++ Interpreter
 
 This is a basic command-line interpreter written in C++. It supports variables, math operations, conditional statements, and is currently being extended to include loops.
 
-## 🚀 How to Use
+## How to Use
 
-### 📌 Declare a Variable
+### Declare a Variable
 ```
 let ( x = 5 )
 ```
 
-### 🔁 Update a Variable
+### Update a Variable
 ```
 let ( x = x - 3 )
 ```
 
-### 🖨️ Print a Variable
+### Print a Variable
 ```
 print(x)
 ```
 
-### 🗒️ Print Any Text or Value
+### Print Any Text or Value
 ```
 print(asdad)
 ```
 
-### 🧠 Conditional Statement (Only `if` + `then` for now)
+### Conditional Statement (Only `if` + `then` for now)
 ```
 if (x > 3) then print(x)
 ```
 
-✅ Supported comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`  
-💡 Only `print`, `let`, and `math` commands are currently supported inside `if` blocks.
+Supported comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`  
+Only `print`, `let`, and `math` commands are currently supported inside `if` blocks.
 
-### ➕ Math Operations
+### Math Operations
 ```
 math(3 + 8)
 math(x / 4)
 ```
 
-✅ Supported math operations: `+`, `-`, `*`, `/`  
-⚙️ `%` (modulus) is currently in development
+Supported math operations: `+`, `-`, `*`, `/`  
+`%` (modulus) is currently in development
 
-### 📋 List All Variables
+### List All Variables
 ```
 listVars()
 ```
 
 Shows all variable names with their current values.
 
-### ❌ Exit the Program
+### Exit the Program
 ```
 exit
 ```
 
 Cleanly terminates the interpreter with `return 0`
 
-## ✅ Features Completed
+## Features Completed
 
 - [x] Math expression evaluation
 - [x] Variable storage and updates
@@ -63,7 +63,7 @@ Cleanly terminates the interpreter with `return 0`
 - [x] Printing values or text
 - [x] Variable listing
 
-## 🔧 In Progress
+## In Progress
 
 - `while` loops (block-style)
 - `%` (modulus) operator in math
