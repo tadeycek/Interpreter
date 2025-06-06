@@ -336,68 +336,112 @@ int main() {
             if(!findWhile(input, condition))
                 cout << "Wrong syntax or invalid while command." << endl;
             else{
-                string op;
-                size_t opPos = string::npos;
-
-                if ((opPos = condition.find("==")) != string::npos) {
-                    op = "==";
-                } else if ((opPos = condition.find("!=")) != string::npos) {
-                    op = "!=";
-                } else if ((opPos = condition.find("<=")) != string::npos) {
-                    op = "<=";
-                } else if ((opPos = condition.find(">=")) != string::npos) {
-                    op = ">=";
-                } else if ((opPos = condition.find("<")) != string::npos) {
-                    op = "<";
-                } else if ((opPos = condition.find(">")) != string::npos) {
-                    op = ">";
+                vector<string> loopCommands;
+                string loopInput;
+                
+                // Collect commands until "end"
+                cout << "Enter commands (type 'end' to finish while loop):" << endl;
+                while (true) {
+                    cout << "... ";
+                    if (!getline(cin, loopInput))
+                        break;
+                    loopInput = trim(loopInput);
+                    if (loopInput == "end")
+                        break;
+                    if (!loopInput.empty())
+                        loopCommands.push_back(loopInput);
                 }
+                
+                // Execute the while loop
+                while (true) {
+                    string op;
+                    size_t opPos = string::npos;
 
-                if (opPos == string::npos) {
-                    cout << "Syntax error: supported operators are ==, !=, <=, >=, <, >" << endl;
-                }
-                else{
+                    if ((opPos = condition.find("==")) != string::npos) {
+                        op = "==";
+                    } else if ((opPos = condition.find("!=")) != string::npos) {
+                        op = "!=";
+                    } else if ((opPos = condition.find("<=")) != string::npos) {
+                        op = "<=";
+                    } else if ((opPos = condition.find(">=")) != string::npos) {
+                        op = ">=";
+                    } else if ((opPos = condition.find("<")) != string::npos) {
+                        op = "<";
+                    } else if ((opPos = condition.find(">")) != string::npos) {
+                        op = ">";
+                    }
+
+                    if (opPos == string::npos) {
+                        cout << "Syntax error: supported operators are ==, !=, <=, >=, <, >" << endl;
+                        break;
+                    }
+                    
                     string left = trim(condition.substr(0, opPos));
                     string right = trim(condition.substr(opPos + op.length()));
 
                     if (left.empty() || right.empty()) {
                         cout << "Invalid condition syntax" << endl;
+                        break;
                     }
-                    else{
-                        string leftVal = variables.count(left) ? variables[left] : left;
-                        string rightVal = variables.count(right) ? variables[right] : right;
+                    
+                    string leftVal = variables.count(left) ? variables[left] : left;
+                    string rightVal = variables.count(right) ? variables[right] : right;
 
-                        bool conditionTrue = false;
+                    bool conditionTrue = false;
 
-                        try {
-                            double num1 = stod(leftVal);
-                            double num2 = stod(rightVal);
+                    try {
+                        double num1 = stod(leftVal);
+                        double num2 = stod(rightVal);
 
-                            if (op == "==") {
-                                conditionTrue = num1 == num2;
-                            } else if (op == "!=") {
-                                conditionTrue = num1 != num2;
-                            } else if (op == "<=") {
-                                conditionTrue = num1 <= num2;
-                            } else if (op == ">=") {
-                                conditionTrue = num1 >= num2;
-                            } else if (op == "<") {
-                                conditionTrue = num1 < num2;
-                            } else if (op == ">") {
-                                conditionTrue = num1 > num2;
-                            }
-                        } catch (...) {
-                            if (op == "==") {
-                                conditionTrue = leftVal == rightVal;
-                            } else if (op == "!=") {
-                                conditionTrue = leftVal != rightVal;
-                            } else {
-                                cout << "Error: Numerical comparison operators (<, >, <=, >=) require numbers" << endl;
-                            }
+                        if (op == "==") {
+                            conditionTrue = num1 == num2;
+                        } else if (op == "!=") {
+                            conditionTrue = num1 != num2;
+                        } else if (op == "<=") {
+                            conditionTrue = num1 <= num2;
+                        } else if (op == ">=") {
+                            conditionTrue = num1 >= num2;
+                        } else if (op == "<") {
+                            conditionTrue = num1 < num2;
+                        } else if (op == ">") {
+                            conditionTrue = num1 > num2;
+                        }
+                    } catch (...) {
+                        if (op == "==") {
+                            conditionTrue = leftVal == rightVal;
+                        } else if (op == "!=") {
+                            conditionTrue = leftVal != rightVal;
+                        } else {
+                            cout << "Error: Numerical comparison operators (<, >, <=, >=) require numbers" << endl;
+                            break;
+                        }
+                    }
+                    
+                    if (!conditionTrue) {
+                        break; // Exit the while loop
+                    }
+                    
+                    // Execute all commands in the loop
+                    for (const string& cmd : loopCommands) {
+                        string loopCommand = checkCommand(cmd);
+                        if (loopCommand == "let") {
+                            if (!handleLet(cmd))
+                                cout << "Invalid variable syntax, use: let(var = value)" << endl;
+                        } else if (loopCommand == "print") {
+                            handlePrint(cmd);
+                        } else if (loopCommand == "math") {
+                            double result;
+                            if (addSub(cmd, result))
+                                cout << result << endl;
+                            else
+                                cout << "Wrong syntax or invalid math command." << endl;
+                        } else if (loopCommand == "if") {
+                            handleIf(cmd);
+                        } else {
+                            cout << "Unknown command in while loop: " << loopCommand << endl;
                         }
                     }
                 }
-                
             }
         } else {
             cout << "Unknown command: " << command << endl;
