@@ -54,8 +54,8 @@ bool addSub(string input, double &result) {
   
   size_t index = string::npos;
   char op = 0;
+
   
-  // Find operators in order of precedence (avoid finding negative numbers)
   for (size_t i = 1; i < output.length(); i++) {
     if (output[i] == '+' || output[i] == '-') {
       index = i;
@@ -164,7 +164,6 @@ void handlePrint(string input) {
 }
 
 void handleIf(string input) {
-  // Find the closing bracket of the condition
   size_t condStart = input.find('(');
   size_t condEnd = input.find(')', condStart);
   
@@ -181,7 +180,6 @@ void handleIf(string input) {
     return;
   }
   
-  // Check for "then" keyword after the brackets
   if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
     cout << "Syntax error: missing 'then' after condition" << endl;
     return;
@@ -193,7 +191,6 @@ void handleIf(string input) {
     return;
   }
 
-  // Check for == operator specifically
   size_t eqPos = condition.find("==");
   if (eqPos == string::npos) {
     cout << "Syntax error: use == for comparison" << endl;
