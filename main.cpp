@@ -1,5 +1,4 @@
 
-
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -46,17 +45,16 @@ string otherPart(string input) {
 bool addSub(string input, double &result) {
     string output = otherPart(input);
     if (output.empty()) return false;
-    
+
     size_t eq = output.find('=');
     if (eq != string::npos) {
         output = output.substr(eq + 1);
         output = trim(output);
     }
-    
+
     size_t index = string::npos;
     char op = 0;
 
-    
     for (size_t i = 1; i < output.length(); i++) {
         if (output[i] == '+' || output[i] == '-') {
             index = i;
@@ -64,7 +62,7 @@ bool addSub(string input, double &result) {
             break;
         }
     }
-    
+
     if (index == string::npos) {
         for (size_t i = 1; i < output.length(); i++) {
             if (output[i] == '*' || output[i] == '/') {
@@ -74,21 +72,21 @@ bool addSub(string input, double &result) {
             }
         }
     }
-    
+
     if (index == string::npos || op == 0) return false;
-    
+
     string firstPart = trim(output.substr(0, index));
     string secondPart = trim(output.substr(index + 1));
-    
+
     if (firstPart.empty() || secondPart.empty()) return false;
-    
+
     double num1, num2;
     try {
         if (variables.count(firstPart))
             num1 = stod(variables[firstPart]);
         else
             num1 = stod(firstPart);
-            
+
         if (variables.count(secondPart))
             num2 = stod(variables[secondPart]);
         else
@@ -120,20 +118,14 @@ bool addSub(string input, double &result) {
 bool handleLet(string input) {
     string remainder = otherPart(input);
     if (remainder.empty()) return false;
-    
+
     size_t eqPos = remainder.find('=');
     if (eqPos == string::npos) return false;
-    
+
     string varName = trim(remainder.substr(0, eqPos));
     string varValue = trim(remainder.substr(eqPos + 1));
-    
-    if (varName.empty()) return false;
 
-    // Remove quotes if they exist for string values
-    if (varValue.length() >= 2 && varValue.front() == '"' && varValue.back() == '"') {
-        variables[varName] = varValue.substr(1, varValue.length() - 2);
-        return true;
-    }
+    if (varName.empty()) return false;
 
     double result;
     if (addSub(input, result)) {
@@ -150,14 +142,7 @@ void handlePrint(string input) {
         cout << "" << endl;
         return;
     }
-    
-    // Remove quotes if they exist
-    if (val.length() >= 2 && val.front() == '"' && val.back() == '"') {
-        val = val.substr(1, val.length() - 2);
-        cout << val << endl;
-        return;
-    }
-    
+
     double result;
     if (addSub(input, result)) {
         cout << result << endl;
@@ -180,25 +165,25 @@ void handlePrint(string input) {
 void handleIf(string input) {
     size_t condStart = input.find('(');
     size_t condEnd = input.find(')', condStart);
-    
+
     if (condStart == string::npos || condEnd == string::npos) {
         cout << "Syntax error: missing brackets around condition" << endl;
         return;
     }
-    
+
     string condition = trim(input.substr(condStart + 1, condEnd - condStart - 1));
     string remainder = trim(input.substr(condEnd + 1));
-    
+
     if (condition.empty()) {
         cout << "Syntax error: empty condition" << endl;
         return;
     }
-    
+
     if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
         cout << "Syntax error: missing 'then' after condition" << endl;
         return;
     }
-    
+
     string action = trim(remainder.substr(4));
     if (action.empty()) {
         cout << "Syntax error: missing action after 'then'" << endl;
@@ -231,7 +216,7 @@ void handleIf(string input) {
     } catch (...) {
         conditionTrue = leftVal == rightVal;
     }
-    
+
     if (conditionTrue) {
         string subCommand = checkCommand(action);
         if (subCommand == "print")
@@ -243,6 +228,13 @@ void handleIf(string input) {
     }
 }
 
+
+
+
+
+
+
+
 int main() {
     string input;
     cout << "Language 1:\n";
@@ -253,10 +245,10 @@ int main() {
             break;
         if (input == "exit")
             break;
-            
+
         input = trim(input);
         if (input.empty()) continue;
-            
+
         string command = checkCommand(input);
         if (command == "let") {
             if (!handleLet(input))
@@ -278,17 +270,8 @@ int main() {
             }
         } else if (command == "if") {
             handleIf(input);
-        } else if (command == "help") {
-            cout << "Available commands:" << endl;
-            cout << "  let(var = value)    - Create/assign variable" << endl;
-            cout << "  print(value)        - Print value or variable" << endl;
-            cout << "  math(expression)    - Evaluate math expression" << endl;
-            cout << "  if(condition) then action - Conditional execution" << endl;
-            cout << "  listVars()          - List all variables" << endl;
-            cout << "  help()              - Show this help" << endl;
-            cout << "  exit                - Exit the program" << endl;
         } else {
-            cout << "Unknown command: " << command << ". Type help() for available commands." << endl;
+            cout << "Unknown command: " << command << endl;
         }
     }
     cout << "Goodbye!\n";
