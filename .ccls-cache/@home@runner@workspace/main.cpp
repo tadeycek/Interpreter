@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 using namespace std;
 
 unordered_map<string, string> variables;
@@ -266,6 +267,28 @@ void handleIf(string input) {
     }
 }
 
+bool findWhile(string input, string &condition){
+    size_t condStart = input.find('(');
+    size_t condEnd = input.find(')', condStart);
+    if (condStart == string::npos || condEnd == string::npos) {
+        cout << "Syntax error: missing brackets around condition" << endl;
+        return false;
+    }
+    condition = trim(input.substr(condStart + 1, condEnd - condStart - 1));
+    string remainder = trim(input.substr(condEnd + 1));
+    if (condition.empty()) {
+        cout << "Syntax error: empty condition" << endl;
+        return false;
+    }
+    if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
+        cout << "Syntax error: missing 'then' after condition" << endl;
+        return false;
+    }
+    return true;
+}
+
+
+
 
 
 
@@ -308,6 +331,74 @@ int main() {
             }
         } else if (command == "if") {
             handleIf(input);
+        } else if (command == "while"){
+            string condition = "";
+            if(!findWhile(input, condition))
+                cout << "Wrong syntax or invalid while command." << endl;
+            else{
+                string op;
+                size_t opPos = string::npos;
+
+                if ((opPos = condition.find("==")) != string::npos) {
+                    op = "==";
+                } else if ((opPos = condition.find("!=")) != string::npos) {
+                    op = "!=";
+                } else if ((opPos = condition.find("<=")) != string::npos) {
+                    op = "<=";
+                } else if ((opPos = condition.find(">=")) != string::npos) {
+                    op = ">=";
+                } else if ((opPos = condition.find("<")) != string::npos) {
+                    op = "<";
+                } else if ((opPos = condition.find(">")) != string::npos) {
+                    op = ">";
+                }
+
+                if (opPos == string::npos) {
+                    cout << "Syntax error: supported operators are ==, !=, <=, >=, <, >" << endl;
+                }
+                else{
+                    string left = trim(condition.substr(0, opPos));
+                    string right = trim(condition.substr(opPos + op.length()));
+
+                    if (left.empty() || right.empty()) {
+                        cout << "Invalid condition syntax" << endl;
+                    }
+                    else{
+                        string leftVal = variables.count(left) ? variables[left] : left;
+                        string rightVal = variables.count(right) ? variables[right] : right;
+
+                        bool conditionTrue = false;
+
+                        try {
+                            double num1 = stod(leftVal);
+                            double num2 = stod(rightVal);
+
+                            if (op == "==") {
+                                conditionTrue = num1 == num2;
+                            } else if (op == "!=") {
+                                conditionTrue = num1 != num2;
+                            } else if (op == "<=") {
+                                conditionTrue = num1 <= num2;
+                            } else if (op == ">=") {
+                                conditionTrue = num1 >= num2;
+                            } else if (op == "<") {
+                                conditionTrue = num1 < num2;
+                            } else if (op == ">") {
+                                conditionTrue = num1 > num2;
+                            }
+                        } catch (...) {
+                            if (op == "==") {
+                                conditionTrue = leftVal == rightVal;
+                            } else if (op == "!=") {
+                                conditionTrue = leftVal != rightVal;
+                            } else {
+                                cout << "Error: Numerical comparison operators (<, >, <=, >=) require numbers" << endl;
+                            }
+                        }
+                    }
+                }
+                
+            }
         } else {
             cout << "Unknown command: " << command << endl;
         }
