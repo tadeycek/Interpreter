@@ -1,21 +1,70 @@
-Simple intepreter im making in C++, basics already done like math, variables, if statements. Working on loops now.
+# 🧮 Simple C++ Interpreter
 
-How to use:
+This is a basic command-line interpreter written in C++. It supports variables, math operations, conditional statements, and is currently being extended to include loops.
 
-let ( x = 5 )..............................................................//Making a new variable
+## 🚀 How to Use
 
-let ( x = x - 3 ).......................................................//Changing the variable
+### 📌 Declare a Variable
+```
+let ( x = 5 )
+```
 
-print(x)....................................................................//Printing the variable
+### 🔁 Update a Variable
+```
+let ( x = x - 3 )
+```
 
-print(asdad)..........................................................//Printing anything else
+### 🖨️ Print a Variable
+```
+print(x)
+```
 
-if(condition) then print(x)...............................//If statement, conditions: ==, <=, >=, !=, <, >, only the print/math/let statements done
+### 🗒️ Print Any Text or Value
+```
+print(asdad)
+```
 
-math(3 + 8)..........................................................//Prints the soultion on the screen
+### 🧠 Conditional Statement (Only `if` + `then` for now)
+```
+if (x > 3) then print(x)
+```
 
-math(x / 4)...........................................................//Can use variables, acceptable operations: +, -, /, *. Working on the %
+✅ Supported comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`  
+💡 Only `print`, `let`, and `math` commands are currently supported inside `if` blocks.
 
-listVars()................................................................//Lists all the variables names and their values
+### ➕ Math Operations
+```
+math(3 + 8)
+math(x / 4)
+```
 
-exit.........................................................................//Exits the program, returns 0
+✅ Supported math operations: `+`, `-`, `*`, `/`  
+⚙️ `%` (modulus) is currently in development
+
+### 📋 List All Variables
+```
+listVars()
+```
+
+Shows all variable names with their current values.
+
+### ❌ Exit the Program
+```
+exit
+```
+
+Cleanly terminates the interpreter with `return 0`
+
+## ✅ Features Completed
+
+- [x] Math expression evaluation
+- [x] Variable storage and updates
+- [x] Conditional statements with `if`
+- [x] Printing values or text
+- [x] Variable listing
+
+## 🔧 In Progress
+
+- `while` loops (block-style)
+- `%` (modulus) operator in math
+- Code block support inside conditions and loops
