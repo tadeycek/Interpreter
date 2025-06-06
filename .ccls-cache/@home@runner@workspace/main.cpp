@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -190,14 +189,32 @@ void handleIf(string input) {
         return;
     }
 
-    size_t eqPos = condition.find("==");
-    if (eqPos == string::npos) {
-        cout << "Syntax error: use == for comparison" << endl;
+    // Find comparison operator
+    string op;
+    size_t opPos = string::npos;
+
+    // Check for two-character operators first
+    if ((opPos = condition.find("==")) != string::npos) {
+        op = "==";
+    } else if ((opPos = condition.find("!=")) != string::npos) {
+        op = "!=";
+    } else if ((opPos = condition.find("<=")) != string::npos) {
+        op = "<=";
+    } else if ((opPos = condition.find(">=")) != string::npos) {
+        op = ">=";
+    } else if ((opPos = condition.find("<")) != string::npos) {
+        op = "<";
+    } else if ((opPos = condition.find(">")) != string::npos) {
+        op = ">";
+    }
+
+    if (opPos == string::npos) {
+        cout << "Syntax error: supported operators are ==, !=, <=, >=, <, >" << endl;
         return;
     }
 
-    string left = trim(condition.substr(0, eqPos));
-    string right = trim(condition.substr(eqPos + 2));
+    string left = trim(condition.substr(0, opPos));
+    string right = trim(condition.substr(opPos + op.length()));
 
     if (left.empty() || right.empty()) {
         cout << "Invalid condition syntax" << endl;
@@ -212,9 +229,30 @@ void handleIf(string input) {
     try {
         double num1 = stod(leftVal);
         double num2 = stod(rightVal);
-        conditionTrue = num1 == num2;
+
+        if (op == "==") {
+            conditionTrue = num1 == num2;
+        } else if (op == "!=") {
+            conditionTrue = num1 != num2;
+        } else if (op == "<=") {
+            conditionTrue = num1 <= num2;
+        } else if (op == ">=") {
+            conditionTrue = num1 >= num2;
+        } else if (op == "<") {
+            conditionTrue = num1 < num2;
+        } else if (op == ">") {
+            conditionTrue = num1 > num2;
+        }
     } catch (...) {
-        conditionTrue = leftVal == rightVal;
+        // For string comparison, only == and != make sense
+        if (op == "==") {
+            conditionTrue = leftVal == rightVal;
+        } else if (op == "!=") {
+            conditionTrue = leftVal != rightVal;
+        } else {
+            cout << "Error: Numerical comparison operators (<, >, <=, >=) require numbers" << endl;
+            return;
+        }
     }
 
     if (conditionTrue) {
