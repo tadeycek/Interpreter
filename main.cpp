@@ -339,7 +339,6 @@ int main() {
                 vector<string> loopCommands;
                 string loopInput;
                 
-                // Collect commands until "end"
                 cout << "Enter commands (type 'end' to finish while loop):" << endl;
                 while (true) {
                     cout << "... ";
@@ -352,7 +351,6 @@ int main() {
                         loopCommands.push_back(loopInput);
                 }
                 
-                // Execute the while loop
                 while (true) {
                     string op;
                     size_t opPos = string::npos;
@@ -418,10 +416,9 @@ int main() {
                     }
                     
                     if (!conditionTrue) {
-                        break; // Exit the while loop
+                        break;
                     }
                     
-                    // Execute all commands in the loop
                     for (const string& cmd : loopCommands) {
                         string loopCommand = checkCommand(cmd);
                         if (loopCommand == "let") {
