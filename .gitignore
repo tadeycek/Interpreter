@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+# Assistant and cache files
+.ccls-cache/
