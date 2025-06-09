@@ -126,7 +126,7 @@ bool addSub(string input, double &result) {
 
   if (index == string::npos) {
 	for (size_t i = 1; i < output.length(); i++) {
-	  if (output[i] == '*' || output[i] == '/') {
+	  if (output[i] == '*' || output[i] == '/' || output[i] == '%') {
 		index = i;
 		op = output[i];
 		break;
@@ -161,6 +161,8 @@ bool addSub(string input, double &result) {
 	  result = num1 - num2;
 	else if (op == '*')
 	  result = num1 * num2;
+	else if(op == '%' && num2 != 0)
+	  result = (int)num1 % (int)num2;
 	else if (op == '/') {
 	  if (num2 == 0) {
 		cout << "Error: Division by zero" << endl;
