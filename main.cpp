@@ -62,13 +62,16 @@ int main() {
       // Validate condition syntax before proceeding
       string condition = otherPart(input);
       if (condition.empty()) {
-        cout << "Syntax error: " << command << " statement requires a condition. Use: " << command << "(condition)" << endl;
+        cout << "Syntax error: " << command
+             << " statement requires a condition. Use: " << command
+             << "(condition)" << endl;
         continue;
       }
 
       // Check if condition is valid
       if (!isValidCondition(condition)) {
-        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        cout << "Syntax error: Invalid condition '" << condition
+             << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
         continue;
       }
 
@@ -84,7 +87,8 @@ int main() {
     } else {
       // Fixed: Show the actual input when command is unknown or empty
       if (command.empty()) {
-        cout << "Unknown command: " << input << " (missing parentheses?)" << endl;
+        cout << "Unknown command: " << input << " (missing parentheses?)"
+             << endl;
       } else {
         cout << "Unknown command: " << command << endl;
       }
@@ -260,7 +264,8 @@ void handlePrint(string input) {
 }
 
 bool isValidCondition(const string &condition) {
-  if (condition.empty()) return false;
+  if (condition.empty())
+    return false;
 
   // Check for valid comparison operators
   return (condition.find("==") != string::npos ||
@@ -328,7 +333,10 @@ vector<string> readCommandBlock() {
   int nestingLevel = 1;
 
   while (nestingLevel > 0) {
-    cout << "... ";
+    cout << ">> ";
+    for (int i = 0; i < nestingLevel; i++) {
+      cout << "... ";
+    }
     if (!getline(cin, userLine))
       break;
     userLine = trim(userLine);
@@ -376,12 +384,15 @@ void executeCommands(const vector<string> &commands) {
 
       // Validate condition
       if (condition.empty()) {
-        cout << "Syntax error: if statement requires a condition. Use: if(condition)" << endl;
+        cout << "Syntax error: if statement requires a condition. Use: "
+                "if(condition)"
+             << endl;
         continue;
       }
 
       if (!isValidCondition(condition)) {
-        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        cout << "Syntax error: Invalid condition '" << condition
+             << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
         continue;
       }
 
@@ -417,12 +428,15 @@ void executeCommands(const vector<string> &commands) {
 
       // Validate condition
       if (condition.empty()) {
-        cout << "Syntax error: while statement requires a condition. Use: while(condition)" << endl;
+        cout << "Syntax error: while statement requires a condition. Use: "
+                "while(condition)"
+             << endl;
         continue;
       }
 
       if (!isValidCondition(condition)) {
-        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        cout << "Syntax error: Invalid condition '" << condition
+             << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
         continue;
       }
 
