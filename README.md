@@ -38,8 +38,7 @@ math(3 + 8)
 math(x / 4)
 ```
 
-Supported math operations: `+`, `-`, `*`, `/`  
-`%` (modulus) is currently in development
+Supported math operations: `+`, `-`, `*`, `/`, `%`
 
 ### List All Variables
 ```
@@ -50,7 +49,10 @@ Shows all variable names with their current values.
 
 ### While loop
 ```
-while(condition) then... end
+while(condition) then
+... command1
+... command2
+... end
 ```
 Example:
 ```
@@ -69,8 +71,6 @@ Output
 
 
 
-
-
 ### Exit the Program
 ```
 exit
@@ -86,8 +86,7 @@ Cleanly terminates the interpreter with `return 0`
 - [x] Printing values or text
 - [x] Variable listing
 - [x] `while` loop (block-style)
+- [x] Nested `while` loops and `if` statements, you can use one in another
 
 ## In Progress
-
-- `%` (modulus) operator in math
-- Code block support inside conditions and loops
+- Nothing as of now, looking for more ideas.
