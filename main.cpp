@@ -15,6 +15,7 @@ bool addSub(string input, double &result);
 bool handleLet(string input);
 void handlePrint(string input);
 bool evaluateCondition(const string &condition);
+bool isValidCondition(const string &condition);
 void executeCommands(const vector<string> &commands);
 vector<string> readCommandBlock();
 void handleSigint(int signum);
@@ -58,6 +59,19 @@ int main() {
           cout << v.first << " = " << v.second << endl;
       }
     } else if (command == "if" || command == "while") {
+      // Validate condition syntax before proceeding
+      string condition = otherPart(input);
+      if (condition.empty()) {
+        cout << "Syntax error: " << command << " statement requires a condition. Use: " << command << "(condition)" << endl;
+        continue;
+      }
+
+      // Check if condition is valid
+      if (!isValidCondition(condition)) {
+        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        continue;
+      }
+
       vector<string> allCommands;
       allCommands.push_back(input);
 
@@ -68,7 +82,12 @@ int main() {
 
       executeCommands(allCommands);
     } else {
-      cout << "Unknown command: " << command << endl;
+      // Fixed: Show the actual input when command is unknown or empty
+      if (command.empty()) {
+        cout << "Unknown command: " << input << " (missing parentheses?)" << endl;
+      } else {
+        cout << "Unknown command: " << command << endl;
+      }
     }
   }
   cout << "Goodbye!\n";
@@ -240,6 +259,18 @@ void handlePrint(string input) {
   }
 }
 
+bool isValidCondition(const string &condition) {
+  if (condition.empty()) return false;
+
+  // Check for valid comparison operators
+  return (condition.find("==") != string::npos ||
+          condition.find("!=") != string::npos ||
+          condition.find("<=") != string::npos ||
+          condition.find(">=") != string::npos ||
+          condition.find("<") != string::npos ||
+          condition.find(">") != string::npos);
+}
+
 bool evaluateCondition(const string &condition) {
   string op;
   size_t opPos = string::npos;
@@ -342,6 +373,18 @@ void executeCommands(const vector<string> &commands) {
 
       string condition =
           trim(cmd.substr(condStart + 1, condEnd - condStart - 1));
+
+      // Validate condition
+      if (condition.empty()) {
+        cout << "Syntax error: if statement requires a condition. Use: if(condition)" << endl;
+        continue;
+      }
+
+      if (!isValidCondition(condition)) {
+        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        continue;
+      }
+
       int nestLevel = 1;
       size_t ifStart = i + 1;
       size_t ifEnd = i + 1;
@@ -371,6 +414,18 @@ void executeCommands(const vector<string> &commands) {
       }
       string condition =
           trim(cmd.substr(condStart + 1, condEnd - condStart - 1));
+
+      // Validate condition
+      if (condition.empty()) {
+        cout << "Syntax error: while statement requires a condition. Use: while(condition)" << endl;
+        continue;
+      }
+
+      if (!isValidCondition(condition)) {
+        cout << "Syntax error: Invalid condition '" << condition << "'. Use comparison operators like ==, !=, <, >, <=, >=" << endl;
+        continue;
+      }
+
       int nestLevel = 1;
       size_t whileStart = i + 1;
       size_t whileEnd = i + 1;
