@@ -89,4 +89,13 @@ Cleanly terminates the interpreter with `return 0`
 - [x] Nested `while` loops and `if` statements, you can use one in another
 
 ## In Progress
-- Nothing as of now, looking for more ideas.
+- Defining and calling functions
+- Return for functions
+- Implementing math into conditions - so if and while
+- Implementing lists
+- Implementing arrays
+- Implementing booleans
+- Making a file version of the language
+- Implementing the input, output functions for user input
+- Adding other logical operators like && and ||
+- Built in math functions like sqrt and pow
