@@ -14,10 +14,9 @@ string otherPart(string input);
 bool addSub(string input, double &result);
 bool handleLet(string input);
 void handlePrint(string input);
-void handleIf(string input);
 bool evaluateCondition(const string &condition);
-void executeCommand(const string &cmd);
-void handleWhile(string input);
+void executeCommands(const vector<string> &commands);
+vector<string> readCommandBlock();
 void handleSigint(int signum);
 
 unordered_map<string, string> variables;
@@ -58,10 +57,16 @@ int main() {
         for (const auto &v : variables)
           cout << v.first << " = " << v.second << endl;
       }
-    } else if (command == "if") {
-      handleIf(input);
-    } else if (command == "while") {
-      handleWhile(input);
+    } else if (command == "if" || command == "while") {
+      vector<string> allCommands;
+      allCommands.push_back(input);
+
+      vector<string> blockCommands = readCommandBlock();
+      allCommands.insert(allCommands.end(), blockCommands.begin(),
+                         blockCommands.end());
+      allCommands.push_back("end");
+
+      executeCommands(allCommands);
     } else {
       cout << "Unknown command: " << command << endl;
     }
@@ -235,49 +240,6 @@ void handlePrint(string input) {
   }
 }
 
-void handleIf(string input) {
-  size_t condStart = input.find('(');
-  size_t condEnd = input.find(')', condStart);
-
-  if (condStart == string::npos || condEnd == string::npos) {
-    cout << "Syntax error: missing brackets around condition" << endl;
-    return;
-  }
-
-  string condition = trim(input.substr(condStart + 1, condEnd - condStart - 1));
-  string remainder = trim(input.substr(condEnd + 1));
-
-  if (condition.empty()) {
-    cout << "Syntax error: empty condition" << endl;
-    return;
-  }
-
-  if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
-    cout << "Syntax error: missing 'then' after condition" << endl;
-    return;
-  }
-
-  vector<string> blockCommands;
-  string userLine;
-
-  while (true) {
-    cout << "... ";
-    if (!getline(cin, userLine))
-      break;
-    userLine = trim(userLine);
-    if (userLine == "end")
-      break;
-    if (!userLine.empty())
-      blockCommands.push_back(userLine);
-  }
-
-  if (evaluateCondition(condition)) {
-    for (const string &cmd : blockCommands) {
-      executeCommand(cmd);
-    }
-  }
-}
-
 bool evaluateCondition(const string &condition) {
   string op;
   size_t opPos = string::npos;
@@ -296,119 +258,143 @@ bool evaluateCondition(const string &condition) {
     op = ">";
   }
 
-  if (opPos == string::npos) {
-    cout << "Syntax error: supported operators are ==, !=, <=, >=, <, >"
-         << endl;
+  if (opPos == string::npos)
     return false;
-  }
 
   string left = trim(condition.substr(0, opPos));
   string right = trim(condition.substr(opPos + op.length()));
 
-  if (left.empty() || right.empty()) {
-    cout << "Invalid condition syntax" << endl;
-    return false;
-  }
-
   string leftVal = variables.count(left) ? variables[left] : left;
   string rightVal = variables.count(right) ? variables[right] : right;
 
-  bool conditionTrue = false;
-
   try {
-    double num1 = stod(leftVal);
-    double num2 = stod(rightVal);
-
-    if (op == "==") {
-      conditionTrue = num1 == num2;
-    } else if (op == "!=") {
-      conditionTrue = num1 != num2;
-    } else if (op == "<=") {
-      conditionTrue = num1 <= num2;
-    } else if (op == ">=") {
-      conditionTrue = num1 >= num2;
-    } else if (op == "<") {
-      conditionTrue = num1 < num2;
-    } else if (op == ">") {
-      conditionTrue = num1 > num2;
-    }
+    double l = stod(leftVal), r = stod(rightVal);
+    if (op == "==")
+      return l == r;
+    if (op == "!=")
+      return l != r;
+    if (op == "<=")
+      return l <= r;
+    if (op == ">=")
+      return l >= r;
+    if (op == "<")
+      return l < r;
+    if (op == ">")
+      return l > r;
   } catch (...) {
-    if (op == "==") {
-      conditionTrue = leftVal == rightVal;
-    } else if (op == "!=") {
-      conditionTrue = leftVal != rightVal;
-    } else {
-      cout << "Error: Numerical comparison operators (<, >, <=, >=) require "
-              "numbers"
-           << endl;
-      return false;
-    }
+    if (op == "==")
+      return leftVal == rightVal;
+    if (op == "!=")
+      return leftVal != rightVal;
   }
 
-  return conditionTrue;
+  return false;
 }
 
-void executeCommand(const string &cmd) {
-  string command = checkCommand(cmd);
-  if (command == "let") {
-    if (!handleLet(cmd))
-      cout << "Invalid variable syntax, use: let(var = value)" << endl;
-  } else if (command == "print") {
-    handlePrint(cmd);
-  } else if (command == "math") {
-    double result;
-    if (addSub(cmd, result))
-      cout << result << endl;
-    else
-      cout << "Wrong syntax or invalid math command." << endl;
-  } else if (command == "if") {
-    handleIf(cmd);
-  } else {
-    cout << "Unknown command: " << command << endl;
-  }
-}
+vector<string> readCommandBlock() {
+  vector<string> commands;
+  string userLine;
+  int nestingLevel = 1;
 
-void handleWhile(string input) {
-  size_t condStart = input.find('(');
-  size_t condEnd = input.find(')', condStart);
-
-  if (condStart == string::npos || condEnd == string::npos) {
-    cout << "Syntax error: missing brackets around condition" << endl;
-    return;
-  }
-
-  string condition = trim(input.substr(condStart + 1, condEnd - condStart - 1));
-  string remainder = trim(input.substr(condEnd + 1));
-
-  if (condition.empty()) {
-    cout << "Syntax error: empty condition" << endl;
-    return;
-  }
-
-  if (remainder.length() < 4 || remainder.substr(0, 4) != "then") {
-    cout << "Syntax error: missing 'then' after condition" << endl;
-    return;
-  }
-
-  vector<string> loopCommands;
-  string loopInput;
-
-  while (true) {
+  while (nestingLevel > 0) {
     cout << "... ";
-    if (!getline(cin, loopInput))
+    if (!getline(cin, userLine))
       break;
-    loopInput = trim(loopInput);
-    if (loopInput == "end")
-      break;
-    if (!loopInput.empty())
-      loopCommands.push_back(loopInput);
+    userLine = trim(userLine);
+    if (userLine.empty())
+      continue;
+
+    commands.push_back(userLine);
+
+    if (checkCommand(userLine) == "if" || checkCommand(userLine) == "while")
+      nestingLevel++;
+    else if (userLine == "end")
+      nestingLevel--;
   }
 
-  while (evaluateCondition(condition)) {
-    for (const string &cmd : loopCommands) {
-      executeCommand(cmd);
-    }
+  return commands;
+}
+
+void executeCommands(const vector<string> &commands) {
+  for (size_t i = 0; i < commands.size(); i++) {
+    string cmd = commands[i];
+    string command = checkCommand(cmd);
+
+    if (command == "let") {
+      if (!handleLet(cmd))
+        cout << "Invalid variable syntax, use: let(var = value)" << endl;
+    } else if (command == "print") {
+      handlePrint(cmd);
+    } else if (command == "math") {
+      double result;
+      if (addSub(cmd, result))
+        cout << result << endl;
+      else
+        cout << "Wrong syntax or invalid math command." << endl;
+    } else if (command == "if") {
+      size_t condStart = cmd.find('(');
+      size_t condEnd = cmd.find(')', condStart);
+
+      if (condStart == string::npos || condEnd == string::npos) {
+        cout << "Syntax error: missing brackets around condition" << endl;
+        continue;
+      }
+
+      string condition =
+          trim(cmd.substr(condStart + 1, condEnd - condStart - 1));
+      int nestLevel = 1;
+      size_t ifStart = i + 1;
+      size_t ifEnd = i + 1;
+      while (ifEnd < commands.size() && nestLevel > 0) {
+        string checkCmd = checkCommand(commands[ifEnd]);
+        if (checkCmd == "if" || checkCmd == "while") {
+          nestLevel++;
+        } else if (commands[ifEnd] == "end") {
+          nestLevel--;
+        }
+        if (nestLevel > 0)
+          ifEnd++;
+      }
+      if (evaluateCondition(condition)) {
+        vector<string> ifBlock(commands.begin() + ifStart,
+                               commands.begin() + ifEnd);
+        executeCommands(ifBlock);
+      }
+      i = ifEnd;
+    } else if (command == "while") {
+      size_t condStart = cmd.find('(');
+      size_t condEnd = cmd.find(')', condStart);
+
+      if (condStart == string::npos || condEnd == string::npos) {
+        cout << "Syntax error: missing brackets around condition" << endl;
+        continue;
+      }
+      string condition =
+          trim(cmd.substr(condStart + 1, condEnd - condStart - 1));
+      int nestLevel = 1;
+      size_t whileStart = i + 1;
+      size_t whileEnd = i + 1;
+
+      while (whileEnd < commands.size() && nestLevel > 0) {
+        string checkCmd = checkCommand(commands[whileEnd]);
+        if (checkCmd == "if" || checkCmd == "while") {
+          nestLevel++;
+        } else if (commands[whileEnd] == "end") {
+          nestLevel--;
+        }
+        if (nestLevel > 0)
+          whileEnd++;
+      }
+      while (evaluateCondition(condition)) {
+        vector<string> whileBlock(commands.begin() + whileStart,
+                                  commands.begin() + whileEnd);
+        executeCommands(whileBlock);
+      }
+      i = whileEnd;
+    } else if (cmd == "end")
+      continue;
   }
+}
 }
 
 void handleSigint(int signum) {
