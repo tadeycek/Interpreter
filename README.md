@@ -14,23 +14,24 @@ let ( x = 5 )
 let ( x = x - 3 )
 ```
 
-### Print a Variable
+### Printing
+If a variable is named lets say x:
 ```
+let(x = 5)
 print(x)
 ```
+This would print the value of x, so `5`,
+if there is no variable named x it would print `x`
 
-### Print Any Text or Value
-```
-print(asdad)
-```
 
-### Conditional Statement (Only `if` + `then` for now)
+### Conditional Statement
 ```
-if (x > 3) then print(x)
+if (x > 3)
+... print(x)
+... end
 ```
 
 Supported comparison operators: `==`, `!=`, `<`, `>`, `<=`, `>=`  
-Only `print`, `let`, and `math` commands are currently supported inside `if` blocks.
 
 ### Math Operations
 ```
@@ -49,7 +50,7 @@ Shows all variable names with their current values.
 
 ### While loop
 ```
-while(condition) then
+while(condition) 
 ... command1
 ... command2
 ... end
@@ -57,7 +58,7 @@ while(condition) then
 Example:
 ```
 let (x=3)
-while(x > 0) then
+while(x > 0) 
 ...print(x)
 ...let(x = x - 1)
 ...end
@@ -68,14 +69,23 @@ Output
 2
 1
 ```
-
-
+### Nested loops / if statements
+```
+while(condition) 
+... if(condition)
+... ... command2
+... ... end
+... end
+```
 
 ### Exit the Program
 ```
 exit
 ```
-
+Or:
+```
+Control + c
+```
 Cleanly terminates the interpreter with `return 0`
 
 ## Features Completed
