@@ -395,7 +395,6 @@ void executeCommands(const vector<string> &commands) {
       continue;
   }
 }
-}
 
 void handleSigint(int signum) {
   cout << "\nInterrupt received (Ctrl+C). Exiting...\n";
